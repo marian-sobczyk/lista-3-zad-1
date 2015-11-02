@@ -1,7 +1,6 @@
 ﻿#include <iostream>
-#include <openssl/aes.h>
 #include "FileContent.h"
-#include <openssl/rand.h>
+#include "AESCBCEncryptor.h"
 
 
 using namespace std;
@@ -9,43 +8,28 @@ using namespace std;
 static const unsigned char key[] = {
         0, 0, 0, 0, 0,
         0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0
+        0, 0, 0, 0, 0, 0
 };
+
+static const unsigned char initVector[] = {'U', 0xe1, 0xb8, 0xb2, 0xe9, '~', 0xac, 'i', 0x95, 0x93, 0x81, '^', 'C', 'L',
+                                           0xef, 0x93};
 
 int main() {
     FileContent *inputContent = new FileContent();
     inputContent->readFromPath("/Users/marian/Desktop/ssl/test1.txt");
-
-
-    AES_KEY enc_key, dec_key;
-
-    unsigned char iv_enc[AES_BLOCK_SIZE], iv_dec[AES_BLOCK_SIZE];
-    RAND_bytes(iv_enc, AES_BLOCK_SIZE);
-
-    memcpy(iv_dec, iv_enc, AES_BLOCK_SIZE);
-
-    long outputsLenght = ((inputContent->filesize + AES_BLOCK_SIZE) / AES_BLOCK_SIZE) * AES_BLOCK_SIZE;
-
-    FileContent *outputContent = new FileContent(outputsLenght);
-
-    AES_set_encrypt_key(key, 128, &enc_key);
-    AES_cbc_encrypt(inputContent->content, outputContent->content, (const unsigned long) inputContent->filesize,
-                    &enc_key, iv_enc, AES_ENCRYPT);
-
+    AESCBCEncryptor *encryptor = new AESCBCEncryptor(key, (unsigned char *) initVector);
+    FileContent *outputContent = encryptor->encryptData(inputContent);
     outputContent->saveInPath("/Users/marian/Desktop/ssl/test2.txt");
-
-    FileContent *output2Content = new FileContent(inputContent->filesize);
-
-    AES_set_decrypt_key(key, 128, &dec_key);
-    AES_cbc_encrypt(outputContent->content, output2Content->content, (const unsigned long) output2Content->filesize,
-                    &dec_key, iv_dec, AES_DECRYPT);
-
-    output2Content->saveInPath("/Users/marian/Desktop/ssl/test3.txt");
-
     delete inputContent;
+    inputContent = new FileContent();
+    inputContent->readFromPath("/Users/marian/Desktop/ssl/test2.txt");
+    delete encryptor;
+    encryptor = new AESCBCEncryptor(key, (unsigned char *) initVector);
     delete outputContent;
-    delete output2Content;
+    outputContent = encryptor->decryptData(inputContent);
+    outputContent->saveInPath("/Users/marian/Desktop/ssl/test3.txt");
+    delete encryptor;
+    delete outputContent;
 
     return 0;
 }
