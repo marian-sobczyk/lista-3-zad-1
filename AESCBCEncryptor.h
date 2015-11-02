@@ -12,17 +12,16 @@
 class AESCBCEncryptor {
 
 public:
-    AESCBCEncryptor(const unsigned char key[16], unsigned char *initVector);
+    AESCBCEncryptor(int keyLength, unsigned char *key, unsigned char *initVector);
 
     FileContent *encryptData(FileContent *fileContent);
 
     FileContent *decryptData(FileContent *data);
 
 private:
-    AES_KEY enc_key;
-
     unsigned char *initVector;
-    AES_KEY dec_key;
+    int keyLength;
+    unsigned char *key;
 };
 
 
