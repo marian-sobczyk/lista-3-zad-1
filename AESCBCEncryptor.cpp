@@ -6,6 +6,14 @@
 #include <string.h>
 #include "AESCBCEncryptor.h"
 
+AESCBCEncryptor::AESCBCEncryptor(int keyLength, unsigned char *key, unsigned char *initVector) {
+    this->keyLength = keyLength / 8;
+    this->key = new unsigned char[this->keyLength];
+    memcpy(this->key, key, (size_t) this->keyLength);
+    this->initVector = new unsigned char[AES_BLOCK_SIZE];
+    memcpy(this->initVector, initVector, AES_BLOCK_SIZE);
+}
+
 FileContent *AESCBCEncryptor::encryptData(FileContent *data) {
     AES_KEY enc_key;
     AES_set_encrypt_key(key, keyLength * 8, &enc_key);
@@ -25,12 +33,4 @@ FileContent *AESCBCEncryptor::decryptData(FileContent *data) {
     AES_cbc_encrypt(data->content, outputData->content, (const unsigned long) data->filesize, &dec_key, initVector,
                     AES_DECRYPT);
     return outputData;
-}
-
-AESCBCEncryptor::AESCBCEncryptor(int keyLength, unsigned char *key, unsigned char *initVector) {
-    this->keyLength = keyLength / 8;
-    this->key = new unsigned char[this->keyLength];
-    memcpy(this->key, key, (size_t) this->keyLength);
-    this->initVector = new unsigned char[AES_BLOCK_SIZE];
-    memcpy(this->initVector, initVector, AES_BLOCK_SIZE);
 }
