@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include "FileContent.h"
 #include "AESCTREncryptor.h"
+#include "KeyChain.h"
 
 
 using namespace std;
@@ -32,6 +33,12 @@ int main() {
     delete encryptor;
     delete outputContent;
 
+    unsigned char *password = (unsigned char *) "Marian";
+
+    KeyChain *keyChain = new KeyChain((unsigned char *) "/Users/marian/Desktop/ssl/keyChain.kc", password, 0);
+
+
+    delete keyChain;
     return 0;
 }
 

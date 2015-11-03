@@ -13,6 +13,8 @@ public:
 
     FileContent(bool encrypted);
 
+    FileContent(unsigned char *content, unsigned long length, bool encrypted);
+
     void readFromPath(const char *path);
 
     unsigned char *content;

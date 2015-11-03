@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <openssl/aes.h>
+#include <string.h>
 #include "FileContent.h"
 
 void FileContent::readFromPath(const char *path) {
@@ -60,4 +61,11 @@ FileContent::FileContent(long size, bool encrypted) {
 FileContent::FileContent(bool encrypted) {
     this->encrypted = encrypted;
     initVector = new unsigned char[AES_BLOCK_SIZE];
+}
+
+FileContent::FileContent(unsigned char *content, unsigned long length, bool encrypted) {
+    this->content = new unsigned char[length];
+    memcpy(this->content, content, (size_t) length);
+    this->filesize = length;
+    this->encrypted = encrypted;
 }
