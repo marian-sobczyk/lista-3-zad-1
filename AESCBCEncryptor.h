@@ -12,14 +12,13 @@
 class AESCBCEncryptor {
 
 public:
-    AESCBCEncryptor(int keyLength, unsigned char *key, unsigned char *initVector);
+    AESCBCEncryptor(int keyLength, unsigned char *key);
 
     FileContent *encryptData(FileContent *fileContent);
 
     FileContent *decryptData(FileContent *data);
 
 private:
-    unsigned char *initVector;
     int keyLength;
     unsigned char *key;
 };

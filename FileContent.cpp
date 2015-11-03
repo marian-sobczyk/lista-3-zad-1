@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <openssl/aes.h>
 #include "FileContent.h"
 
 void FileContent::readFromPath(const char *path) {
@@ -11,10 +12,20 @@ void FileContent::readFromPath(const char *path) {
         return;
     }
     fseek(input, 0L, SEEK_END);
-    filesize = ftell(input);
+    filesize = (unsigned long) ftell(input);
+    if (encrypted) {
+        filesize -= AES_BLOCK_SIZE;
+        initVector = new unsigned char[AES_BLOCK_SIZE];
+    }
     fseek(input, 0L, SEEK_SET);
     content = new unsigned char[filesize];
     unsigned char character;
+    if (encrypted) {
+        for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+            fread(&character, 1, 1, input);
+            initVector[i] = character;
+        }
+    }
     for (int i = 0; i < filesize; i++) {
         fread(&character, 1, 1, input);
         content[i] = character;
@@ -27,6 +38,11 @@ void FileContent::saveInPath(const char *path) {
     if (output == NULL) {
         return;
     }
+    if (encrypted) {
+        for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+            fwrite(&initVector[i], 1, 1, output);
+        }
+    }
     for (int i = 0; i < filesize; i++) {
         fwrite(&content[i], 1, 1, output);
     }
@@ -34,11 +50,14 @@ void FileContent::saveInPath(const char *path) {
     fclose(output);
 }
 
-FileContent::FileContent(long size) {
+FileContent::FileContent(long size, bool encrypted) {
     filesize = (unsigned long) size;
     content = new unsigned char[size];
+    this->encrypted = encrypted;
+    initVector = new unsigned char[AES_BLOCK_SIZE];
 }
 
-FileContent::FileContent() {
-
+FileContent::FileContent(bool encrypted) {
+    this->encrypted = encrypted;
+    initVector = new unsigned char[AES_BLOCK_SIZE];
 }

@@ -9,9 +9,9 @@
 class FileContent {
 
 public:
-    FileContent();
+    FileContent(long size, bool encrypted);
 
-    FileContent(long size);
+    FileContent(bool encrypted);
 
     void readFromPath(const char *path);
 
@@ -21,6 +21,8 @@ public:
 
     unsigned long filesize;
 
+    unsigned char *initVector;
+    bool encrypted;
 };
 
 
