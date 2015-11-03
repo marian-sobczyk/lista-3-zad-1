@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 #include "FileContent.h"
-#include "AESCBCEncryptor.h"
+#include "AESCTREncryptor.h"
 
 
 using namespace std;
@@ -21,14 +21,14 @@ static const unsigned char initVector[] = {'U', 0xe1, 0xb8, 0xb2, 0xe9, '~', 0xa
 int main() {
     FileContent *inputContent = new FileContent();
     inputContent->readFromPath("/Users/marian/Desktop/ssl/test1.txt");
-    AESCBCEncryptor *encryptor = new AESCBCEncryptor(256, (unsigned char *) key, (unsigned char *) initVector);
+    AESCTREncryptor *encryptor = new AESCTREncryptor((unsigned char *) key, (unsigned char *) initVector);
     FileContent *outputContent = encryptor->encryptData(inputContent);
     outputContent->saveInPath("/Users/marian/Desktop/ssl/test2.txt");
     delete inputContent;
     inputContent = new FileContent();
     inputContent->readFromPath("/Users/marian/Desktop/ssl/test2.txt");
     delete encryptor;
-    encryptor = new AESCBCEncryptor(256, (unsigned char *) key, (unsigned char *) initVector);
+    encryptor = new AESCTREncryptor((unsigned char *) key, (unsigned char *) initVector);
     delete outputContent;
     outputContent = encryptor->decryptData(inputContent);
     outputContent->saveInPath("/Users/marian/Desktop/ssl/test3.txt");

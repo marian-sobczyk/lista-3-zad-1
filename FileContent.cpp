@@ -6,7 +6,7 @@
 #include "FileContent.h"
 
 void FileContent::readFromPath(const char *path) {
-    FILE *input = fopen(path, "r");
+    FILE *input = fopen(path, "rb");
     if (input == NULL) {
         return;
     }
@@ -23,7 +23,7 @@ void FileContent::readFromPath(const char *path) {
 }
 
 void FileContent::saveInPath(const char *path) {
-    FILE *output = fopen(path, "w");
+    FILE *output = fopen(path, "wb");
     if (output == NULL) {
         return;
     }
@@ -35,7 +35,7 @@ void FileContent::saveInPath(const char *path) {
 }
 
 FileContent::FileContent(long size) {
-    filesize = size;
+    filesize = (unsigned long) size;
     content = new unsigned char[size];
 }
 

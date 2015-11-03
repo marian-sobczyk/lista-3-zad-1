@@ -19,7 +19,7 @@ public:
 
     void saveInPath(const char *path);
 
-    long filesize;
+    unsigned long filesize;
 
 };
 
