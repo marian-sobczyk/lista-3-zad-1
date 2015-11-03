@@ -4,14 +4,8 @@
 
 #include <string.h>
 #include <openssl/aes.h>
+#include <openssl/rand.h>
 #include "AESCTREncryptor.h"
-
-AESCTREncryptor::AESCTREncryptor(unsigned char *key, unsigned char *initVector) {
-    this->key = new unsigned char[128 / 8];
-    memcpy(this->key, key, 128 / 8);
-    this->initVector = new unsigned char[AES_BLOCK_SIZE];
-    memcpy(this->initVector, initVector, AES_BLOCK_SIZE);
-}
 
 void AESCTREncryptor::initCtr() {
     num = 0;
@@ -23,19 +17,28 @@ void AESCTREncryptor::initCtr() {
 }
 
 FileContent *AESCTREncryptor::encryptData(FileContent *data) {
+    RAND_bytes(initVector, AES_BLOCK_SIZE);
+    FileContent *outputData = new FileContent(data->filesize, true);
+    memcpy(outputData->initVector, initVector, AES_BLOCK_SIZE);
     initCtr();
     AES_KEY enc_key;
     AES_set_encrypt_key(key, 128, &enc_key);
-    FileContent *outputData = new FileContent(data->filesize);
     AES_ctr128_encrypt(data->content, outputData->content, data->filesize, &enc_key, ivec, ecount, &num);
     return outputData;
 }
 
 FileContent *AESCTREncryptor::decryptData(FileContent *data) {
+    memcpy(initVector, data->initVector, AES_BLOCK_SIZE);
     initCtr();
     AES_KEY dec_key;
     AES_set_encrypt_key(key, 128, &dec_key);
-    FileContent *outputData = new FileContent(data->filesize);
+    FileContent *outputData = new FileContent(data->filesize, false);
     AES_ctr128_encrypt(data->content, outputData->content, data->filesize, &dec_key, ivec, ecount, &num);
     return outputData;
+}
+
+AESCTREncryptor::AESCTREncryptor(unsigned char *key) {
+    this->key = new unsigned char[128 / 8];
+    memcpy(this->key, key, 128 / 8);
+    this->initVector = new unsigned char[AES_BLOCK_SIZE];
 }

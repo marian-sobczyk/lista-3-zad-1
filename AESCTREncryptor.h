@@ -11,7 +11,8 @@
 class AESCTREncryptor {
 
 public:
-    AESCTREncryptor(unsigned char *key, unsigned char *initVector);
+
+    AESCTREncryptor(unsigned char *key);
 
     FileContent *encryptData(FileContent *data);
 
