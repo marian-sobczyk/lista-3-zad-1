@@ -7,16 +7,17 @@
 
 
 #include "FileContent.h"
+#include "AESEncryptor.h"
 
-class AESCTREncryptor {
+class AESCTREncryptor : public AESEncryptor {
 
 public:
 
     AESCTREncryptor(unsigned char *key);
 
-    FileContent *encryptData(FileContent *data);
+    virtual FileContent *encryptData(FileContent *data);
 
-    FileContent *decryptData(FileContent *data);
+    virtual FileContent *decryptData(FileContent *data);
 
 private:
     unsigned char *key;

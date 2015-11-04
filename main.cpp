@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     unsigned char *key = keyChain->key;
     FileContent *inputContent = new FileContent(false);
     inputContent->readFromPath("/Users/marian/Desktop/ssl/test1.txt");
-    AESCTREncryptor *encryptor = new AESCTREncryptor(key);
+    AESEncryptor *encryptor = new AESCTREncryptor(key);
     FileContent *outputContent = encryptor->encryptData(inputContent);
 //    outputContent->saveInPath("/Users/marian/Desktop/ssl/test2.txt");
     delete inputContent;
@@ -70,9 +70,12 @@ EncodingEffect getEncodingEffect(char *effectASCII) {
     int effect = atoi(effectASCII);
 
     switch (effect) {
-        case 0: return EEEncoding;
-        case 1: return EEDecoding;
-        default: return EEUnknown;
+        case 0:
+            return EEEncoding;
+        case 1:
+            return EEDecoding;
+        default:
+            return EEUnknown;
     }
 }
 

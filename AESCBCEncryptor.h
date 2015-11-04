@@ -7,16 +7,17 @@
 
 
 #include "FileContent.h"
+#include "AESEncryptor.h"
 #include <openssl/aes.h>
 
-class AESCBCEncryptor {
+class AESCBCEncryptor : public AESEncryptor {
 
 public:
     AESCBCEncryptor(int keyLength, unsigned char *key);
 
-    FileContent *encryptData(FileContent *fileContent);
+    virtual FileContent *encryptData(FileContent *fileContent);
 
-    FileContent *decryptData(FileContent *data);
+    virtual FileContent *decryptData(FileContent *data);
 
 private:
     int keyLength;
