@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <openssl/rand.h>
 #include "KeyChain.h"
 #include "FileContent.h"
 #include "AESCBCEncryptor.h"
@@ -40,7 +41,7 @@ void KeyChain::checkIfKeychainExists(const unsigned char *path, const unsigned c
 
 void KeyChain::createNewKeychain(unsigned char *path, unsigned char *password) {
     unsigned char *keyChain = new unsigned char[KEYLENGTH];
-    keyChain[6] = 'd';
+    RAND_bytes(keyChain, KEYLENGTH);
     FileContent *fileContent = new FileContent(keyChain, KEYLENGTH, false);
     AESCBCEncryptor *encryptor = new AESCBCEncryptor(256, password);
     FileContent *encrypted = encryptor->encryptData(fileContent);
