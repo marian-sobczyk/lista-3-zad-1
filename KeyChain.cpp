@@ -7,7 +7,7 @@
 #include "FileContent.h"
 #include "AESCBCEncryptor.h"
 
-#define KEYLENGTH 257
+#define KEYLENGTH 33
 
 KeyChain::KeyChain(unsigned char *path, unsigned char *pass, int index) {
     unsigned char *password = new unsigned char[256];
