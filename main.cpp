@@ -23,6 +23,12 @@ EncodingType getEncodingType(char *encodingType);
 
 EncodingEffect getEncodingEffect(char *effectASCII);
 
+AESEncryptor *getEncryptor(const EncodingType &type, unsigned char *key);
+
+FileContent *getOutput(const EncodingEffect &effect, FileContent *input, AESEncryptor *encryptor);
+
+const char *getOutputPath(const char *filePath, const EncodingEffect &effect);
+
 int main(int argc, char *argv[]) {
     if (argc < 6) {
         cout <<
@@ -55,24 +61,11 @@ int main(int argc, char *argv[]) {
 
     FileContent *input = new FileContent(effect == EEDecoding);
     input->readFromPath(filePath);
-    AESEncryptor *encryptor;
-    if (type == ETCBC) {
-        encryptor = new AESCBCEncryptor(256, key);
-    } else {
-        encryptor = new AESCTREncryptor(key);
-    }
+    AESEncryptor *encryptor = getEncryptor(type, key);
 
-    FileContent *output;
-    if (effect == EEEncoding) {
-        output = encryptor->encryptData(input);
-    } else {
-        output = encryptor->decryptData(input);
-    }
+    FileContent *output = getOutput(effect, input, encryptor);
 
-    string newPath = string(filePath);
-    unsigned long found = newPath.find_last_of("/");
-    newPath = newPath.substr(0, found + 1) + (effect == EEDecoding ? "decoded" : "encoded");
-    const char *outputPath = newPath.c_str();
+    const char *outputPath = getOutputPath(filePath, effect);
 
     output->saveInPath(outputPath);
 
@@ -83,6 +76,34 @@ int main(int argc, char *argv[]) {
 
 
     return 0;
+}
+
+const char *getOutputPath(const char *filePath, const EncodingEffect &effect) {
+    string newPath = string(filePath);
+    unsigned long found = newPath.find_last_of("/");
+    newPath = newPath.substr(0, found + 1) + (effect == EEDecoding ? "decoded" : "encoded");
+    const char *outputPath = newPath.c_str();
+    return outputPath;
+}
+
+FileContent *getOutput(const EncodingEffect &effect, FileContent *input, AESEncryptor *encryptor) {
+    FileContent *output;
+    if (effect == EEEncoding) {
+        output = encryptor->encryptData(input);
+    } else {
+        output = encryptor->decryptData(input);
+    }
+    return output;
+}
+
+AESEncryptor *getEncryptor(const EncodingType &type, unsigned char *key) {
+    AESEncryptor *encryptor;
+    if (type == ETCBC) {
+        encryptor = new AESCBCEncryptor(256, key);
+    } else {
+        encryptor = new AESCTREncryptor(key);
+    }
+    return encryptor;
 }
 
 EncodingEffect getEncodingEffect(char *effectASCII) {
