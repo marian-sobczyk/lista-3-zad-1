@@ -2,6 +2,7 @@
 #include "FileContent.h"
 #include "AESCTREncryptor.h"
 #include "KeyChain.h"
+#include "AESCBCEncryptor.h"
 
 
 using namespace std;
@@ -42,27 +43,45 @@ int main(int argc, char *argv[]) {
     char *filePath = argv[4];
 
     EncodingEffect effect = getEncodingEffect(argv[5]);
+    if (effect == EEUnknown) {
+        cout << "Błędna metoda szyfrowania\n";
+        return -1;
+    }
 
     char *password = getpass("Podaj hasło: ");
     KeyChain *keyChain = new KeyChain((unsigned char *) keystorePath,
                                       (unsigned char *) password, index);
     unsigned char *key = keyChain->key;
-    FileContent *inputContent = new FileContent(false);
-    inputContent->readFromPath("/Users/marian/Desktop/ssl/test1.txt");
-    AESEncryptor *encryptor = new AESCTREncryptor(key);
-    FileContent *outputContent = encryptor->encryptData(inputContent);
-//    outputContent->saveInPath("/Users/marian/Desktop/ssl/test2.txt");
-    delete inputContent;
-    inputContent = new FileContent(true);
-    inputContent->readFromPath("/Users/marian/Desktop/ssl/test2.txt");
-    delete encryptor;
-    encryptor = new AESCTREncryptor(key);
-    delete outputContent;
-    outputContent = encryptor->decryptData(inputContent);
-    outputContent->saveInPath("/Users/marian/Desktop/ssl/test3.txt");
-    delete encryptor;
-    delete outputContent;
+
+    FileContent *input = new FileContent(effect == EEDecoding);
+    input->readFromPath(filePath);
+    AESEncryptor *encryptor;
+    if (type == ETCBC) {
+        encryptor = new AESCBCEncryptor(256, key);
+    } else {
+        encryptor = new AESCTREncryptor(key);
+    }
+
+    FileContent *output;
+    if (effect == EEEncoding) {
+        output = encryptor->encryptData(input);
+    } else {
+        output = encryptor->decryptData(input);
+    }
+
+    string newPath = string(filePath);
+    unsigned long found = newPath.find_last_of("/");
+    newPath = newPath.substr(0, found + 1) + (effect == EEDecoding ? "decoded" : "encoded");
+    const char *outputPath = newPath.c_str();
+
+    output->saveInPath(outputPath);
+
+    delete input;
+    delete output;
     delete keyChain;
+    delete encryptor;
+
+
     return 0;
 }
 
@@ -71,9 +90,9 @@ EncodingEffect getEncodingEffect(char *effectASCII) {
 
     switch (effect) {
         case 0:
-            return EEEncoding;
-        case 1:
             return EEDecoding;
+        case 1:
+            return EEEncoding;
         default:
             return EEUnknown;
     }
