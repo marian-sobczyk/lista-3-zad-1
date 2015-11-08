@@ -6,7 +6,7 @@
 #include <openssl/rand.h>
 #include "KeyChain.h"
 #include "FileContent.h"
-#include "AESCBCEncryptor.h"
+#include "AESCTREncryptor.h"
 
 #define KEYLENGTH 33
 
@@ -16,7 +16,7 @@ KeyChain::KeyChain(unsigned char *path, unsigned char *pass, int index) {
     checkIfKeychainExists(path, password);
     FileContent *keyChain = new FileContent(true);
     keyChain->readFromPath((const char *) path);
-    AESCBCEncryptor *encryptor = new AESCBCEncryptor(256, password);
+    AESCTREncryptor *encryptor = new AESCTREncryptor(password);
     FileContent *fileContent = encryptor->decryptData(keyChain);
     delete keyChain;
     delete encryptor;
@@ -43,7 +43,7 @@ void KeyChain::createNewKeychain(unsigned char *path, unsigned char *password) {
     unsigned char *keyChain = new unsigned char[KEYLENGTH];
     RAND_bytes(keyChain, KEYLENGTH);
     FileContent *fileContent = new FileContent(keyChain, KEYLENGTH, false);
-    AESCBCEncryptor *encryptor = new AESCBCEncryptor(256, password);
+    AESCTREncryptor *encryptor = new AESCTREncryptor(password);
     FileContent *encrypted = encryptor->encryptData(fileContent);
     encrypted->saveInPath((const char *) path);
     delete keyChain;
